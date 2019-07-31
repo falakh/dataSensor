@@ -17,83 +17,78 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.example.bantumei.Model.SensorTanahModel;
 import com.example.bantumei.Pojo.Sensor;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
 
-public class DataTanah extends Fragment {
+public class DataTanah extends Fragment implements SensorTanahModel.SensorTanahListener {
 
 
     private View view;
     private ListView dataTanah;
-
-
-    public DataTanah() {
-        // Required empty public constructor
-    }
-
+    ArrayList<String> dataSenseorString = new ArrayList<String>();
+    SensorTanahModel model = new SensorTanahModel();
+    String key = "";
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Bundle bundle = getArguments();
+        key = bundle.getString("id","tanah");
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.fragment_data_tanah, container, false);
-        getDataSensor();
         dataTanah = view.findViewById(R.id.lv_data_tanah);
-        getDataSensor();
         return view;
     }
 
     @Override
     public void onStart() {
         super.onStart();
-        getDataSensor();
+        model.getDataSensor(this,getActivity());
     }
 
-    void getDataSensor() {
-        String url = "http://sensor.bbppketindan.info/webservice2.php";
-        RequestQueue queue = Volley.newRequestQueue(getActivity());
-        StringRequest request = new StringRequest(Request.Method.GET, url, new Response.Listener<String>() {
-            @Override
-            public void onResponse(String response) {
-                try {
-                    ArrayList<Sensor> dataSenseor = new ArrayList<Sensor>();
-                    ArrayList<String> dataSenseorString = new ArrayList<String>();
-                    JSONArray array = new JSONArray(response);
-                    for(int i=0;i<array.length();i++){
-                        String tanah = array.getJSONObject(i).getString("SoilMoisture");
-                        String suhu= array.getJSONObject(i).getString("Temperature");
-                        String kecAngin = array.getJSONObject(i).getString("Humidity");
-                        Sensor dataBaru = new Sensor(tanah,suhu,kecAngin);
-                        dataSenseor.add(dataBaru);
-                        dataSenseorString.add(dataBaru.toString());
-                    }
-                    ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(),R.layout.support_simple_spinner_dropdown_item,dataSenseorString);
-                    dataTanah.setAdapter(adapter);
 
-                } catch (JSONException e) {
-                    e.printStackTrace();
+
+    @Override
+    public void onSukses(Sensor[] result) {
+        SimpleDateFormat formatter = new SimpleDateFormat("HH:mm:ss");
+
+        switch (key){
+            case "temperatur":
+                for (int i = 0; i < result.length; i++) {
+                    dataSenseorString.add("Suhu"+ formatter.format(result[i].timeStamp)+" : "+result[i].Temperature.toString());
                 }
+                break;
+            case "tanah":
+                for (int i = 0; i < result.length; i++) {
+                    dataSenseorString.add("Kelembapan Tanah "+ formatter.format(result[i].timeStamp)+"  : "+result[i].SoilMoisture.toString());
+                }
+                break;
+            case "angin":
+                for (int i = 0; i < result.length; i++) {
+                    dataSenseorString.add("Kelembapan Angin "+ formatter.format(result[i].timeStamp)+"  : "+result[i].Humidity.toString());
+                }
+                break;
 
+        }
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(),R.layout.support_simple_spinner_dropdown_item,dataSenseorString);
+        dataTanah.setAdapter(adapter);
 
-            }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                Log.d("EROR", error.getMessage());
-            }
-        });
-        queue.add(request);
     }
 
+    @Override
+    public void onEror(VolleyError error) {
 
+    }
 }

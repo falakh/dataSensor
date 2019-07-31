@@ -18,14 +18,25 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+            Fragment fragment =  new DataTanah();
+            String key = "";
             switch (item.getItemId()) {
                 case R.id.navigation_home:
-                    return  loadFragment(new DataTanah());
+                    key ="temperatur";
+
+                    break;
                 case R.id.navigation_dashboard:
-                    return true;
+                    key = "tanah";
+                    break;
                 case R.id.navigation_notifications:
-                    return true;
+                    key = "angin";
+                    break;
             }
+
+            Bundle bundle = new Bundle();
+            bundle.putString("id",key);
+            fragment.setArguments(bundle);
+            loadFragment(fragment);
             return false;
         }
     };
@@ -37,8 +48,14 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         BottomNavigationView navView = findViewById(R.id.nav_view);
-        loadFragment(new DataTanah());
+
         navView.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
+        String key ="temperatur";
+        Fragment fragment =  new DataTanah();
+        Bundle bundle = new Bundle();
+        bundle.putString("id",key);
+        fragment.setArguments(bundle);
+        loadFragment(fragment);
     }
 
     private boolean loadFragment(Fragment fragment) {

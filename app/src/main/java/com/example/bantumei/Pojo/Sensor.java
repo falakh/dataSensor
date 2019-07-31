@@ -2,15 +2,19 @@ package com.example.bantumei.Pojo;
 
 import androidx.annotation.NonNull;
 
-public class Sensor {
-    private String SoilMoisture;
-    private String Temperature;
-    private String Humidity;
+import java.util.Date;
 
-    public Sensor( String soilMoisture, String temperature, String humidity) {
+public class Sensor {
+    public String SoilMoisture;
+    public String Temperature;
+    public String Humidity;
+    public Date timeStamp;
+
+    public Sensor( String soilMoisture, String temperature, String humidity,Date timeStamp) {
         SoilMoisture = soilMoisture;
         Temperature = temperature;
         Humidity = humidity;
+        this.timeStamp = timeStamp;
     }
 
     @NonNull

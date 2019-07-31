@@ -16,11 +16,14 @@ import com.example.bantumei.R;
 import org.json.JSONArray;
 import org.json.JSONException;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 
 public class SensorTanahModel {
 
-    void getDataSensor(final SensorTanahListener listener, Context context){
+    public void getDataSensor(final SensorTanahListener listener, Context context){
         String url = "http://sensor.bbppketindan.info/webservice2.php";
         RequestQueue queue = Volley.newRequestQueue(context);
         StringRequest request = new StringRequest(Request.Method.GET, url, new Response.Listener<String>() {
@@ -33,12 +36,17 @@ public class SensorTanahModel {
                         String tanah = array.getJSONObject(i).getString("SoilMoisture");
                         String suhu= array.getJSONObject(i).getString("Temperature");
                         String kecAngin = array.getJSONObject(i).getString("Humidity");
-                        Sensor dataBaru = new Sensor(tanah,suhu,kecAngin);
+                        String rawDate = array.getJSONObject(i).getString("Timestamp");
+//                        2019-07-24 11:04:25
+                        Date tanggal = new SimpleDateFormat("yyyy-MM-DD HH:mm:ss").parse(rawDate);
+                        Sensor dataBaru = new Sensor(tanah,suhu,kecAngin,tanggal);
                         dataSenseor.add(dataBaru);
                     }
 
                     listener.onSukses(dataSenseor.toArray(new Sensor[dataSenseor.size()]));
                 } catch (JSONException e) {
+                    e.printStackTrace();
+                } catch (ParseException e) {
                     e.printStackTrace();
                 }
 
@@ -53,7 +61,8 @@ public class SensorTanahModel {
         queue.add(request);
     }
 
-    interface SensorTanahListener {
+
+    public interface SensorTanahListener {
         void onSukses(Sensor[] result);
         void onEror(VolleyError error);
     }
